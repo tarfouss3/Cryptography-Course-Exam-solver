@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 from cryptocourse import basic_crypto, permute
 
-# lazy S-box store
+# S-box store
 SBOX = {}
 
 def read_hex_byte(s):
@@ -108,3 +108,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
