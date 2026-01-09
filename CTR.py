@@ -45,11 +45,11 @@ def parse_ops(s):
     return ops
 
 def main():
-    print("=== 1-Round Block Cipher Solver (CTR mode) ===")
+    print("1-Round Block Cipher Solver (CTR mode)")
     plaintext_hex = input("Plaintext (hex): ").strip()
     masterkey_hex = input("Master key (hex): ").strip()
     perm_seq = list(map(int, input("Permutation (space separated): ").split()))
-    ops_input = input("Operation order (e.g. SBOX PERM XOR): ").strip()
+    ops_input = input("Operation order (e.g. SBOX PERM XOR XOR1 XOR2 ...): ").strip()
 
     plainb = bytes.fromhex(plaintext_hex)
     mkb = bytes.fromhex(masterkey_hex)
@@ -73,7 +73,6 @@ def main():
     for i in range(num_subkeys):
         subkeys.append(mkb[i*block_size:(i+1)*block_size])
 
-    # CTR uses a nonce (IV) and a counter
     nonce_hex = input("Nonce (hex, 0 if zero): ").strip().lower()
     nonce = bytes(block_size) if nonce_hex == "0" else bytes.fromhex(nonce_hex)
     if len(nonce) != block_size:
@@ -83,11 +82,9 @@ def main():
     counter = 0
 
     for blk in blocks:
-        # build counter block: nonce || counter (simple addition)
         ctr_bytes = int.from_bytes(nonce, "big") + counter
         ctr_block = ctr_bytes.to_bytes(block_size, "big")
 
-        # encrypt counter block through pipeline
         state = ctr_block
         for step, idx in ops:
             if step == "SBOX":
@@ -97,7 +94,6 @@ def main():
             elif step == "XOR":
                 state = basic_crypto.byte_xor(state, subkeys[idx-1])
 
-        # XOR keystream with plaintext block
         cipher_block = basic_crypto.byte_xor(state, blk)
         cipher_blocks.append(cipher_block)
         counter += 1
@@ -108,4 +104,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
